@@ -33,7 +33,7 @@ import { SchemaModal } from './components/SchemaModal';
 import { BreadcrumbTrail } from './components/BreadcrumbTrail';
 import { DrillDownMenu } from './components/DrillDownMenu';
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '')}/api` : 'http://localhost:8000/api');
 
 export function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
