@@ -112,7 +112,10 @@ def validate_safe_sql(sql: str) -> Tuple[bool, str]:
     if not (upper_sql.startswith("SELECT") or upper_sql.startswith("WITH")):
         return False, "Only read-only SELECT or WITH (CTE) queries are permitted."
 
-    # Dangerous DDL / DML keywords
+    # Dangerous DDL / DML keywords - check against SQL structure (ignoring string literals like 'Vacuum Cleaner')
+    sql_without_strings = re.sub(r"'(?:''|[^'])*'", "''", clean_sql)
+    upper_structure = sql_without_strings.upper()
+
     forbidden_patterns = [
         r"\bDROP\b", r"\bDELETE\b", r"\bINSERT\b", r"\bUPDATE\b",
         r"\bTRUNCATE\b", r"\bALTER\b", r"\bCREATE\b", r"\bGRANT\b",
@@ -121,7 +124,7 @@ def validate_safe_sql(sql: str) -> Tuple[bool, str]:
     ]
 
     for pattern in forbidden_patterns:
-        if re.search(pattern, upper_sql):
+        if re.search(pattern, upper_structure):
             return False, f"Mutating / destructive operations are blocked for security."
 
     return True, clean_sql
